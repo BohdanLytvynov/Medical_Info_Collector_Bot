@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using Medical_Info_Collector_Telegramm_Bot.ViewModels;
 
 namespace Medical_Info_Collector_Telegramm_Bot
 {
@@ -20,9 +21,20 @@ namespace Medical_Info_Collector_Telegramm_Bot
     /// </summary>
     public partial class MainWindow : Window
     {
+        MainWindowViewModel m_vm;
+
         public MainWindow()
         {
+            m_vm = new MainWindowViewModel(this);
+
+            this.DataContext = this;
+
             InitializeComponent();
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            m_vm.StopBot();
         }
     }
 }

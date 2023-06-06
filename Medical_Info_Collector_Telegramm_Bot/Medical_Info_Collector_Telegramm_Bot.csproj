@@ -7,4 +7,14 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Collector_Bot_Api\Collector_Bot_Api.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="ViewModelBaseLib">
+      <HintPath>..\..\..\..\C# Projects\Work\DBKLMP\Patient-Repository-System\ViewModelBaseLib\bin\Debug\net6.0-windows\ViewModelBaseLib.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>
