@@ -19,9 +19,12 @@ namespace Bar_Code_Core
 
         #region Methods
 
-        public BarcodeResults ReadBarCode(string path)
+        public BarcodeResult ReadBarCode(string path)
         {
-            return BarcodeReader.Read(path);
+            return BarcodeReader.ReadASingleBarcode(path, 
+                BarcodeEncoding.AllOneDimensional, 
+                BarcodeReader.BarcodeRotationCorrection.Medium, 
+                BarcodeReader.BarcodeImageCorrection.DeepCleanPixels);
         }
 
         #endregion

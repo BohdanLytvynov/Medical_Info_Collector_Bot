@@ -121,7 +121,12 @@ namespace Collector_Bot_Api
 
                                 msgId = arg2.Message.MessageId;
 
-                                await m_bot.SendTextMessageAsync();
+                                await m_bot.SendTextMessageAsync(chatId:chatid,
+                                    "Будь ласка відправляйте фото як <i><b>документ</b></i>. " +
+                                    "\nДля недопущення стиснення фото.",
+                                    parseMode: ParseMode.Html,
+                                    replyToMessageId:msgId,
+                                    cancellationToken: m_cts.Token);
 
                                 break;
 
