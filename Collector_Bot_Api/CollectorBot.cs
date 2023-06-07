@@ -8,6 +8,7 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types;
 using static System.IO.File;
 using OCR_Core;
+using Bar_Code_Core;
 
 namespace Collector_Bot_Api
 {
@@ -25,6 +26,8 @@ namespace Collector_Bot_Api
 
         #region Fields
 
+        Bar_Code_Core.IronBarCode m_BarCode;
+
         OCR m_OCR;
 
         TelegramBotClient m_bot;
@@ -40,6 +43,8 @@ namespace Collector_Bot_Api
         #region Ctor
         public CollectorBot()
         {
+            m_BarCode = new Bar_Code_Core.IronBarCode();
+
             m_OCR = new OCR();
 
             m_pathToToken = Environment.CurrentDirectory + Path.DirectorySeparatorChar+
@@ -88,13 +93,15 @@ namespace Collector_Bot_Api
 
             ChatId chatid = arg2.Message.Chat.Id;
 
+            int msgId = 0;
+
             try
             {
                 switch (type)
                 {
                     case UpdateType.Unknown:
 
-                        var msgId = arg2.Message.MessageId;
+                        msgId = arg2.Message.MessageId;
 
                         await m_bot.SendTextMessageAsync(
                             chatId : chatid,
@@ -112,28 +119,9 @@ namespace Collector_Bot_Api
                         {
                             case MessageType.Photo:
 
-                                Guid phId1 = Guid.NewGuid();
+                                msgId = arg2.Message.MessageId;
 
-                                var photoId1 = arg2.Message.Photo.First().FileId;
-
-                                var fileInfo1 = await m_bot.GetFileAsync(photoId1);
-
-                                var path1 = m_pathToTempPhotos + Path.DirectorySeparatorChar +
-                                    $"{phId1}" + ".jpg";
-
-                                FileStream fs1 = Create(path1);
-
-                                await m_bot.DownloadFileAsync(
-                                    filePath: fileInfo1.FilePath,
-                                    destination: fs1,
-                                    cancellationToken: m_cts.Token
-                                    );
-
-                                fs1.Close();
-
-                                fs1.Dispose();
-
-                                 var r1 = m_OCR.ConvertPhotoToText(path1);
+                                await m_bot.SendTextMessageAsync();
 
                                 break;
 
@@ -161,7 +149,7 @@ namespace Collector_Bot_Api
                                 fs.Dispose();
 
                                 var r = m_OCR.ConvertPhotoToText(path);
-
+                               
                                 break;
 
                             case MessageType.Text:
