@@ -8,25 +8,29 @@ using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types;
 using static System.IO.File;
 using OCR_Core;
-using Bar_Code_Core;
+using IronOcr;
 
 namespace Collector_Bot_Api
 {
     public class CollectorBot
     {
+        #region Delegates
+        
+        #endregion
+
         #region Events
+
+        public event Action<OcrResult> OnUpdateRecieve;
+
+        #endregion
+
+        #region Fields
 
         string m_pathToToken;
 
         string m_pathToTempPhotos;
 
         ReceiverOptions m_recOptions;
-
-        #endregion
-
-        #region Fields
-
-        Bar_Code_Core.IronBarCode m_BarCode;
 
         OCR m_OCR;
 
@@ -42,9 +46,7 @@ namespace Collector_Bot_Api
 
         #region Ctor
         public CollectorBot()
-        {
-            m_BarCode = new Bar_Code_Core.IronBarCode();
-
+        {          
             m_OCR = new OCR();
 
             m_pathToToken = Environment.CurrentDirectory + Path.DirectorySeparatorChar+
@@ -134,9 +136,9 @@ namespace Collector_Bot_Api
 
                                 Guid phId = Guid.NewGuid();
 
-                                var photoId = arg2.Message.Document.FileId;
+                                var fileid = arg2.Message.Document.FileId;
 
-                                var fileInfo = await m_bot.GetFileAsync(photoId);
+                                var fileInfo = await m_bot.GetFileAsync(fileid);
                                 
                                 var path = m_pathToTempPhotos + Path.DirectorySeparatorChar +
                                     $"{phId}" + ".jpg";
@@ -154,7 +156,9 @@ namespace Collector_Bot_Api
                                 fs.Dispose();
 
                                 var r = m_OCR.ConvertPhotoToText(path);
-                               
+
+                                OnUpdateRecieve?.Invoke(r);
+
                                 break;
 
                             case MessageType.Text:
