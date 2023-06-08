@@ -1,6 +1,7 @@
 ﻿using MedInfoDb.Models.AdditionalInfo;
 using MedInfoDb.Models.Patient;
 using Microsoft.EntityFrameworkCore;
+using System.Configuration;
 
 namespace MedInfoDb
 {
@@ -25,11 +26,18 @@ namespace MedInfoDb
 
         }
 
-        public MedInfoDbContext()
+        public MedInfoDbContext():base()
         {
 
         }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            optionsBuilder.UseSqlServer(
+                "Data Source=BohdanPC\\SQLEXPRESS2019;Initial Catalog=Med_Info_Tel_Bot;Integrated Security=True;TrustServerCertificate=True");
+
+            base.OnConfiguring(optionsBuilder);
+        }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Patient>().HasMany(x => x.AdditionalPatientInfo).WithOne(p => p.Patient)
