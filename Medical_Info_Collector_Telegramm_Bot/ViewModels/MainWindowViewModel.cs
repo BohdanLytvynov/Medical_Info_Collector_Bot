@@ -10,8 +10,11 @@ using System.Windows;
 using DBController;
 using MedInfoDb;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.SqlServer;
-using Microsoft.Extensions.Options;
+using System.Configuration;
+using System.Collections.Specialized;
+using System.Text.RegularExpressions;
+using MedInfoDb.Models.Patient;
+using MedInfoDb.Models.Patient.Enums;
 
 namespace Medical_Info_Collector_Telegramm_Bot.ViewModels
 {
@@ -25,6 +28,9 @@ namespace Medical_Info_Collector_Telegramm_Bot.ViewModels
         DB_Controller m_dbController;
 
         MedInfoDbContext m_medInfoDB;
+
+        Regex m_code;
+       
         #endregion
 
         #region Properties
@@ -33,10 +39,14 @@ namespace Medical_Info_Collector_Telegramm_Bot.ViewModels
 
         #region Ctor
         public MainWindowViewModel(Window window)
-        {            
+        {
+            m_code = new Regex(@"\d{4}-\d{4}-\d{4}-\d{4}");
+                        
+            var settings = ConfigurationManager.GetSection("appSettings") as NameValueCollection;
+                
             DbContextOptionsBuilder<MedInfoDbContext> optBuilder = new DbContextOptionsBuilder<MedInfoDbContext>();
 
-            optBuilder.UseSqlServer("Data Source=ws1\\SQL2019Express;Initial Catalog=MedInfoColBot;Integrated Security=True");
+            optBuilder.UseSqlServer(settings["ConString"]);
 
             m_medInfoDB = new MedInfoDbContext(optBuilder);
 
@@ -46,16 +56,84 @@ namespace Medical_Info_Collector_Telegramm_Bot.ViewModels
 
             m_colBot = new CollectorBot();
 
+            m_colBot.OnUpdateRecieve += M_colBot_OnUpdateRecieve;
+
             var str = m_colBot.TestBotAsync();
 
             MessageBox.Show($"{str}");
 
             m_colBot.Start();
-            m_window = window;
+                         
+        }
 
-             
+        private void M_colBot_OnUpdateRecieve(IronOcr.OcrResult obj)
+        {
+            bool CodeCorrect = false;
+
+            bool SNLFound = false;
+
+            string[] snl = null;
+
+            string code = String.Empty;
+
+            if (obj != null && obj.Lines.Length > 0)
+            {                                
+                var Lines = obj.Lines;
+               
+                foreach (var item in Lines)
+                {
+                    CodeCorrect = m_code.IsMatch(item.Text);
+
+                    if (CodeCorrect)// El refferal was found
+                    {
+                        code = item.Text;
+                    }
+
+                    SNLFound = IsValidSNL(item.Text, out snl);                    
+                }
+            }
+
+            if (CodeCorrect && SNLFound)
+            {
+                var p = new Patient(Guid.NewGuid(), snl[1], snl[0],
+                    snl[2], code, String.Empty,
+                    PatientStatus.Не_Погашено,
+                    new DateTime(), DateTime.Now,
+                    String.Empty, null
+                   );
+
+                m_dbController.Add(
+                    p
+                    );
+            }
         }
         #endregion
+
+        private bool IsValidSNL(string txt, out string[] snl)
+        {
+            snl = new string[3];
+
+            if (txt != null)
+            {
+                var splitArray = txt.Split(' ');
+
+                for (int i = 0; i < 3; i++)
+                {
+                    string first = splitArray[i][0].ToString();
+
+                    if (!first.Equals(first.ToUpper()))
+                    {
+                        return false;
+                    }
+                    else
+                    {
+                        snl[i] = splitArray[i];
+                    }
+                }                
+            }
+
+            return true;
+        }
 
         #region Methods
         public void StopBot()
@@ -64,6 +142,7 @@ namespace Medical_Info_Collector_Telegramm_Bot.ViewModels
 
             m_colBot.Stop();
         }
+        
         #endregion
     }
 }

@@ -8,14 +8,20 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="7.0.5">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\Collector_Bot_Api\Collector_Bot_Api.csproj" />
     <ProjectReference Include="..\DBController\DBController.csproj" />
-    <ProjectReference Include="..\MedInfoDb\MedInfoDb.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="ViewModelBaseLib">
-      <HintPath>..\..\Patient-Repository-System\ViewModelBaseLib\bin\Release\net6.0-windows\ViewModelBaseLib.dll</HintPath>
+      <HintPath>..\..\..\..\C# Projects\Work\DBKLMP\Patient-Repository-System\ViewModelBaseLib\bin\Release\net6.0-windows\ViewModelBaseLib.dll</HintPath>
     </Reference>
   </ItemGroup>
 
