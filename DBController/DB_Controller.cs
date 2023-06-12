@@ -32,6 +32,8 @@ namespace DBController
         public void Add(Patient item)
         {
             m_db.Add(item);
+
+            m_db.SaveChanges();
         }
 
         public void Delete(Patient item)
@@ -53,7 +55,7 @@ namespace DBController
             if (p!= null && editArray != null)
             {
                 var dest = p.GetType();
-
+                
                 var source = newItem.GetType();
 
                 var Sourceprops = source.GetProperties();
@@ -114,8 +116,10 @@ namespace DBController
 
                     try
                     {
+                        var t = DateTime.Parse(key.ToString());
+
                         res = (from p in m_db.PatientNotes
-                               where p.RegisterDate.Equals(DateTime.Parse(key.ToString()))
+                               where p.RegisterDate.Equals(t)
                                select p).Include(x => x.AdditionalPatientInfo).OrderBy(x => x.RegisterDate);
                     }
                     catch (FormatException e)
