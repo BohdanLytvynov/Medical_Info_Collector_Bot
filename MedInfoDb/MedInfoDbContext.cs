@@ -26,7 +26,7 @@ namespace MedInfoDb
 
         }
 
-        public MedInfoDbContext():base()
+        public MedInfoDbContext() : base()
         {
 
         }
@@ -34,7 +34,7 @@ namespace MedInfoDb
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer(
-                "Data Source=BohdanPC\\SQLEXPRESS2019;Initial Catalog=Med_Info_Tel_Bot;Integrated Security=True;TrustServerCertificate=True");
+                "Data Source=ws1\\SQL2019Express;Initial Catalog=MedInfoColBot;Integrated Security=True;TrustServerCertificate=True");
 
             base.OnConfiguring(optionsBuilder);
         }
