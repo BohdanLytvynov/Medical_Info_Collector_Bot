@@ -27,7 +27,7 @@
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="376*"/>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="200*"/>
+                            <ColumnDefinition Width="400*"/>
                         </Grid.ColumnDefinitions>
                         <GridSplitter Grid.Column="1"
                                       Style="{StaticResource GridSplitterVertical}"/>
@@ -60,12 +60,63 @@
                             <ComboBox Grid.Row="1" 
                                       Grid.Column="1"
                                       IsEditable="True"
-                                      ItemsSource="{Binding Source={StaticResource PatientStatus} }"
+                                      ItemsSource="{Binding Source={StaticResource SearchMode}}"
+                                      SelectedItem="{Binding SearchModeProp, UpdateSourceTrigger=PropertyChanged,
+                                Mode=TwoWay}"
                                       />
                             <TextBox Grid.Row="3" 
                                      Grid.Column="1"
-                                     Style="{StaticResource TxtBoxInputStyle}">
+                                     Style="{StaticResource TxtBoxInputStyle}"
+                                     Visibility="{Binding TextBoxVisibility,
+                                UpdateSourceTrigger=PropertyChanged, Mode=OneWay}">
+
+                                <TextBox.Text>
+                                    <Binding Path="SearchKey" Mode="TwoWay"
+                                             UpdateSourceTrigger="PropertyChanged">
+                                        <Binding.ValidationRules>
+                                            <DataErrorValidationRule/>
+                                        </Binding.ValidationRules>
+                                    </Binding>
+                                </TextBox.Text>
+
                             </TextBox>
+
+                            <Grid Grid.Row="3" Grid.Column="1" 
+                                  Visibility="{Binding DatePickerVisibility,
+                                UpdateSourceTrigger=PropertyChanged,
+                                Mode=OneWay}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="150"/>
+                                    <ColumnDefinition Width="40"/>
+                                    <ColumnDefinition Width="150"/>
+                                    <ColumnDefinition/>
+                                </Grid.ColumnDefinitions>
+
+                                <DatePicker Grid.Column="0"
+                                            SelectedDate="{Binding Start,
+                                    UpdateSourceTrigger=PropertyChanged,Mode=TwoWay}">
+                                <DatePicker.Resources>
+                                    <Style TargetType="DatePickerTextBox">
+                                        <Setter Property="Text" Value="Початок:"/>
+                                    </Style>
+                                </DatePicker.Resources>
+                                </DatePicker>
+
+                                <DatePicker Grid.Column="2"
+                                            SelectedDate="{Binding End, UpdateSourceTrigger=PropertyChanged,
+                                    Mode=TwoWay}">
+                                    <DatePicker.Resources>
+                                        <Style TargetType="DatePickerTextBox">
+                                            <Setter Property="Text" Value="Кінець:"/>
+                                        </Style>
+                                    </DatePicker.Resources>
+                                </DatePicker>
+
+                            </Grid>
+
+                            
+
+
 
                             <Grid Grid.Row="5" Grid.Column="1">
                                 <Grid.ColumnDefinitions>
@@ -77,12 +128,14 @@
 
                                 <Button Grid.Column="1"
                                         Content="Пошук"
-                                        Style="{StaticResource Buttons2}"/>
+                                        Style="{StaticResource Buttons2}"
+                                        Command="{Binding OnSearchButtonPressed}"/>
 
                                 <Button Grid.Column="3"
                                         Content="Очистити"
-                                        Style="{StaticResource Buttons}"/>
-                                
+                                        Style="{StaticResource Buttons}"
+                                        Command="{Binding OnClearFieldsButtonPressed}"/>
+
                             </Grid>
 
                             <TextBlock Grid.Row="7" Grid.Column="1"

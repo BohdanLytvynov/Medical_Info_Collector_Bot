@@ -4,14 +4,29 @@
              xmlns:local="clr-namespace:Medical_Info_Collector_Telegramm_Bot" 
              xmlns:system="clr-namespace:System;assembly=mscorlib"
              xmlns:ps="clr-namespace:MedInfoDb.Models.Patient.Enums;assembly=MedInfoDb"
+             xmlns:patient="clr-namespace:ItemViewModels.Patient;assembly=ItemViewModels"
+             xmlns:ad="clr-namespace:ItemViewModels.AddInfoViewModel;assembly=ItemViewModels"
+             xmlns:searchMode="clr-namespace:DBController.Enums;assembly=DBController"
              StartupUri="Views/MainWindow.xaml">
     <Application.Resources>
+
+        <!--#region Enums  -->
 
         <ObjectDataProvider x:Key="PatientStatus" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
             <ObjectDataProvider.MethodParameters>
                 <x:Type TypeName="ps:PatientStatus"/>
             </ObjectDataProvider.MethodParameters>
         </ObjectDataProvider>
+
+        <ObjectDataProvider x:Key="SearchMode" MethodName="GetValues" ObjectType="{x:Type system:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="searchMode:SearchMode"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+        <!--#endregion-->
+
+        
         
         <system:Double x:Key="TabItemHeaderFontSize">20
         </system:Double>
@@ -527,6 +542,243 @@
                 </Trigger>
             </Style.Triggers>
         </Style>
+
+        <!--#region DataTempaltes -->
+
+        <DataTemplate DataType="{x:Type patient:PatientVM}">
+            <Border x:Name="bord" BorderThickness="2" BorderBrush="Black" CornerRadius="10">
+
+                <StackPanel Orientation="Vertical">
+
+                    <StackPanel Orientation="Horizontal" Style="{StaticResource Stacks}">
+                        <TextBlock Text="{Binding Number, UpdateSourceTrigger=PropertyChanged, Mode=OneWay,
+                        StringFormat=№ {0}}" Margin="5"/>
+
+                        <StackPanel Orientation="Vertical" Margin="5">
+
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <TextBlock Text="П:  " />
+                                <TextBox Style="{StaticResource PatientFieldsTxtBox}">
+                                    <TextBox.Text>
+                                        <Binding Path="Surename" UpdateSourceTrigger="PropertyChanged" Mode="TwoWay">
+                                            <Binding.ValidationRules>
+                                                <DataErrorValidationRule/>
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </TextBox.Text>
+                                </TextBox>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <TextBlock Text="І:  "/>
+                                <TextBox Style="{StaticResource PatientFieldsTxtBox}">
+                                    <TextBox.Text>
+                                        <Binding Path="Name" UpdateSourceTrigger="PropertyChanged" Mode="TwoWay">
+                                            <Binding.ValidationRules>
+                                                <DataErrorValidationRule/>
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </TextBox.Text>
+                                </TextBox>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <TextBlock Text="Б:  "/>
+                                <TextBox Style="{StaticResource PatientFieldsTxtBox}">
+                                    <TextBox.Text>
+                                        <Binding Path="Lastname" UpdateSourceTrigger="PropertyChanged" Mode="TwoWay">
+                                            <Binding.ValidationRules>
+                                                <DataErrorValidationRule/>
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </TextBox.Text>
+                                </TextBox>
+                            </StackPanel>
+
+                        </StackPanel>
+
+                        <StackPanel Orientation="Vertical" Margin="5">
+
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <TextBlock Text="№ направлення:  "/>
+                                <TextBox Style="{StaticResource PatientFieldsTxtBox}">
+                                    <TextBox.Text>
+                                        <Binding Path="Code" UpdateSourceTrigger="PropertyChanged" Mode="TwoWay">
+                                            <Binding.ValidationRules>
+                                                <DataErrorValidationRule/>
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </TextBox.Text>
+                                </TextBox>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <TextBlock Text="Дата реєстрації:  "/>
+                                <TextBox Style="{StaticResource PatientFieldsTxtBox}">
+                                    <TextBox.Text>
+                                        <Binding Path="RegisterDate" UpdateSourceTrigger="PropertyChanged" Mode="TwoWay"
+                                             StringFormat="dd.MM.yyyy" Converter="{StaticResource StringToDateTime}">
+                                            <Binding.ValidationRules>
+                                                <DataErrorValidationRule/>
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </TextBox.Text>
+                                </TextBox>
+                            </StackPanel>
+
+                            <StackPanel Orientation="Horizontal" Margin="5">
+                                <TextBlock Text="Дата дослідження:  "/>
+                                <TextBox Style="{StaticResource PatientFieldsTxtBox}">
+                                    <TextBox.Text>
+                                        <Binding Path="InvestigationDate" UpdateSourceTrigger="PropertyChanged" Mode="TwoWay"
+                                             StringFormat="dd.MM.yyyy" Converter="{StaticResource StringToDateTime}">
+                                            <Binding.ValidationRules>
+                                                <DataErrorValidationRule/>
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </TextBox.Text>
+                                </TextBox>
+                            </StackPanel>
+
+                            <Button 
+                                    Margin="10" Style="{StaticResource Buttons2}" Content="Вствновити дату дослідження" Command="{Binding OnSetInvestigationDatePressed}"/>
+
+                            <ComboBox ItemsSource="{Binding Source= {StaticResource PatientStatus}}" 
+                                  SelectedItem="{Binding Status, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                  IsEditable="True"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Vertical" Margin="10,5,10,0">
+
+                            <Expander Margin="5" Header="Висновок:">
+
+                                <Grid Height="200" Width="600">
+                                    <TextBox Margin="5" Text="{Binding Diagnosis, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
+                             TextWrapping="Wrap" HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible"
+                             AcceptsReturn="True" AcceptsTab="True"/>
+                                </Grid>
+
+                            </Expander>
+
+                            <Expander Margin="5,40,0,0">
+                                <Expander.Header>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Додаткова інформація:"/>
+                                        <TextBlock Text="{Binding AddInfoVMCollection.Count, UpdateSourceTrigger=PropertyChanged, Mode=OneWay, StringFormat=({0}) шт.}"/>
+                                    </StackPanel>
+                                </Expander.Header>
+                                <StackPanel Orientation="Vertical">
+
+                                    <Grid Margin="5">
+                                        <Border BorderBrush="Green" BorderThickness="2" CornerRadius="4">
+                                            <ListView x:Name="adInfoViewer" ItemsSource="{Binding AddInfoVMCollection, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                              SelectedIndex="{Binding SelectedAddInfoIndex, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"/>
+                                        </Border>
+                                    </Grid>
+
+                                    <StackPanel Orientation="Horizontal">
+
+                                        <Button x:Name="Add" Margin="5" Content="+" Style="{StaticResource Buttons2}" Width="100" FontSize="20"
+                                        Command="{Binding OnAddAdditionalInfoButtonPressed}"/>
+
+                                        <Button x:Name="Rem" Content="-" Style="{StaticResource Buttons}" Width="100" FontSize="20" Margin="20,5,5,5"
+                                        Command="{Binding OnRemoveAdditionalInfoButtonPressed}"/>
+
+                                    </StackPanel>
+
+                                </StackPanel>
+                            </Expander>
+
+                            <StackPanel Orientation="Horizontal" Margin="30,40,0,0">
+                                <TextBlock Text="Центр:"/>
+
+                                <TextBox Margin="30,0" Width="50" Style="{StaticResource TxtBoxInputStyle}">
+                                    <TextBox.Text>
+                                        <Binding Path="Center" UpdateSourceTrigger="PropertyChanged" Mode="TwoWay">
+                                            <Binding.ValidationRules>
+                                                <DataErrorValidationRule/>
+                                            </Binding.ValidationRules>
+                                        </Binding>
+                                    </TextBox.Text>
+                                </TextBox>
+                            </StackPanel>
+
+                        </StackPanel>
+
+
+
+                        <StackPanel Orientation="Vertical" Margin="5">
+
+                            <Button Margin="5,5,5,40" Content="Зберегти зміни" Command="{Binding SaveChangesButtonPressed}" Style="{StaticResource Buttons2}"/>
+
+                            <Button Margin="5,5,5,40" Content="Видалити" Command="{Binding RemoveButtonPressed}" Style="{StaticResource Buttons}"/>
+
+                        </StackPanel>
+
+                    </StackPanel>
+
+                    <TextBlock x:Name="adorner" Margin="60,0"/>
+
+                </StackPanel>
+            </Border>
+
+            <DataTemplate.Triggers>
+
+                <DataTrigger Binding="{Binding IsRemoved, UpdateSourceTrigger=PropertyChanged}" Value="True">
+                    <DataTrigger.Setters>
+                        <Setter TargetName="bord" Property="Visibility" Value="Collapsed"/>
+                    </DataTrigger.Setters>
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding IsRemoved, UpdateSourceTrigger=PropertyChanged}" Value="False">
+                    <DataTrigger.Setters>
+                        <Setter TargetName="bord" Property="Visibility" Value="Visible"/>
+                    </DataTrigger.Setters>
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding Status}" Value="1">
+                    <DataTrigger.Setters>
+                        <Setter TargetName="bord" Property="ItemsControl.BorderBrush" Value="Orange"/>
+                        <Setter TargetName="bord" Property="ItemsControl.BorderThickness" Value="2"/>
+                        <Setter TargetName="adorner" Property="Text" Value="Не Погашено!!!"/>
+                        <Setter TargetName="adorner" Property="ItemsControl.Foreground" Value="DarkOrange"/>
+                    </DataTrigger.Setters>
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding Status}" Value="2">
+                    <DataTrigger.Setters>
+                        <Setter TargetName="bord" Property="ItemsControl.BorderBrush" Value="Green"/>
+                        <Setter TargetName="bord" Property="ItemsControl.BorderThickness" Value="2"/>
+                        <Setter TargetName="adorner" Property="Text" Value="Погашено. Все Ок! ЗП прийде :)"/>
+                        <Setter TargetName="adorner" Property="ItemsControl.Foreground" Value="Green"/>
+                    </DataTrigger.Setters>
+                </DataTrigger>
+
+                <DataTrigger Binding="{Binding Status}" Value="3">
+                    <DataTrigger.Setters>
+                        <Setter TargetName="bord" Property="ItemsControl.BorderBrush" Value="Red"/>
+                        <Setter TargetName="bord" Property="ItemsControl.BorderThickness" Value="2"/>
+                        <Setter TargetName="adorner" Property="Text" Value="Цей хворий вже не прийде! І грощі за нього не дадуть! ):"/>
+                        <Setter TargetName="adorner" Property="ItemsControl.Foreground" Value="Red"/>
+                    </DataTrigger.Setters>
+                </DataTrigger>
+
+            </DataTemplate.Triggers>
+
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type ad:AdditionalInfoViewModel}">
+            <Border BorderBrush="Black" BorderThickness="2" CornerRadius="3" Margin="5">
+                <StackPanel Orientation="Horizontal" Style="{StaticResource Stacks}" Margin="3">
+                    <TextBlock Text="{Binding ShowNumber, UpdateSourceTrigger=PropertyChanged, StringFormat=№ {0})}"/>
+
+                    <TextBox Text="{Binding Value, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" Margin="20,0,0,0"
+                             />
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
+        <!--#endregion-->
 
     </Application.Resources>
 </Application>

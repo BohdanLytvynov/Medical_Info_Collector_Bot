@@ -17,11 +17,12 @@
   <ItemGroup>
     <ProjectReference Include="..\Collector_Bot_Api\Collector_Bot_Api.csproj" />
     <ProjectReference Include="..\DBController\DBController.csproj" />
+    <ProjectReference Include="..\ItemViewModels\ItemViewModels.csproj" />
   </ItemGroup>
 
   <ItemGroup>
     <Reference Include="ViewModelBaseLib">
-      <HintPath>..\..\..\..\C# Projects\Work\DBKLMP\Patient-Repository-System\ViewModelBaseLib\bin\Release\net6.0-windows\ViewModelBaseLib.dll</HintPath>
+      <HintPath>..\..\Patient-Repository-System\ViewModelBaseLib\bin\Release\net6.0-windows\ViewModelBaseLib.dll</HintPath>
     </Reference>
   </ItemGroup>
 

@@ -22,21 +22,21 @@ namespace MedInfoDb.Models.Patient
         [Key]
         public Guid Id { get; set; }
 
-        public string Name { get; set; }
+        public  string Name { get; set; }
 
-        public string Surename { get; set; }
+        public  string Surename { get; set; }
 
-        public string Lastname { get; set; }
+        public  string Lastname { get; set; }
 
-        public string Code { get; set; }
+        public  string Code { get; set; }
 
-        public string Diagnosis { get; set; }
+        public  string Diagnosis { get; set; }
 
-        public PatientStatus Status { get; set; }
+        public  PatientStatus Status { get; set; }
 
-        public DateTime InvestigationDate { get; set; }
-
-        public DateTime RegisterDate { get; set; }
+        public  DateTime InvestigationDate { get; set; }
+         
+        public  DateTime RegisterDate { get; set; }
 
         public List<AdditionalInfo<string>> AdditionalPatientInfo { get; set; }
 
@@ -63,6 +63,16 @@ namespace MedInfoDb.Models.Patient
             Lastname = lastname;
 
             Code = code;
+
+            Status = status;
+
+            Diagnosis = diagnosis;
+
+            InvestigationDate = investDate;
+
+            RegisterDate = regDate;
+
+            this.Center = Center;
 
             AdditionalPatientInfo = new List<AdditionalInfo<string>>();
 

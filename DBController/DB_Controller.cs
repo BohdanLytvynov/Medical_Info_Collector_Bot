@@ -81,58 +81,64 @@ namespace DBController
         {
             IEnumerable<Patient> res = null;
 
-            switch (mode)
+            try
             {
-                case SearchMode.По_Прізвищу:
-
-                    res = (from p in m_db.PatientNotes
-                           where p.Surename.Equals(key.ToString())
-                           select p).Include(x=> x.AdditionalPatientInfo).OrderBy(x=> x.Surename);
-
-                    break;
-                case SearchMode.По_Імені:
-
-                    res = (from p in m_db.PatientNotes
-                           where p.Name.Equals(key.ToString())
-                           select p).Include(x => x.AdditionalPatientInfo).OrderBy(x => x.Surename);
-
-                    break;
-                case SearchMode.По_батькові:
-
-                    res = (from p in m_db.PatientNotes
-                           where p.Lastname.Equals(key.ToString())
-                           select p).Include(x => x.AdditionalPatientInfo).OrderBy(x => x.Surename);
-
-                    break;
-                case SearchMode.По_Номеру_Направлення:
-
-                    res = (from p in m_db.PatientNotes
-                           where p.Code.Equals(key.ToString())
-                           select p).Include(x => x.AdditionalPatientInfo);
-
-                    break;
-
-                case SearchMode.По_Даті_Формування:
-
-                    try
-                    {
-                        var t = DateTime.Parse(key.ToString());
+                switch (mode)
+                {
+                    case SearchMode.По_Прізвищу:
 
                         res = (from p in m_db.PatientNotes
-                               where p.RegisterDate.Equals(t)
-                               select p).Include(x => x.AdditionalPatientInfo).OrderBy(x => x.RegisterDate);
-                    }
-                    catch (FormatException e)
-                    {
+                               where p.Surename.Equals(key.ToString())
+                               select p).Include(x => x.AdditionalPatientInfo).OrderBy(x => x.Surename);
 
-                        throw;
-                    }
-                    
-                    break;
-                default:
-                    break;
+                        break;
+                    case SearchMode.По_Імені:
+
+                        res = (from p in m_db.PatientNotes
+                               where p.Name.Equals(key.ToString())
+                               select p).Include(x => x.AdditionalPatientInfo).OrderBy(x => x.Surename);
+
+                        break;
+                    case SearchMode.По_батькові:
+
+                        res = (from p in m_db.PatientNotes
+                               where p.Lastname.Equals(key.ToString())
+                               select p).Include(x => x.AdditionalPatientInfo).OrderBy(x => x.Surename);
+
+                        break;
+                    case SearchMode.По_Номеру_Направлення:
+
+                        res = (from p in m_db.PatientNotes
+                               where p.Code.Equals(key.ToString())
+                               select p).Include(x => x.AdditionalPatientInfo);
+
+                        break;
+
+                    case SearchMode.По_Даті_Формування:
+
+
+                        var t = key as DateTime[];
+
+                        if (t != null)
+                        {
+                            res = (from p in m_db.PatientNotes
+                                   where p.RegisterDate >= t[0] && p.RegisterDate <= t[1]
+                                   select p).Include(x => x.AdditionalPatientInfo).OrderBy(x => x.RegisterDate);
+                        }
+
+
+
+                        break;
+                    default:
+                        break;
+                }
             }
+            catch (Exception ex)
+            {
 
+                throw;
+            }
+           
             return res;
         }
 

@@ -27,7 +27,7 @@ namespace Medical_Info_Collector_Telegramm_Bot
         {
             m_vm = new MainWindowViewModel(this);
 
-            this.DataContext = this;
+            this.DataContext = m_vm;
 
             InitializeComponent();
         }
