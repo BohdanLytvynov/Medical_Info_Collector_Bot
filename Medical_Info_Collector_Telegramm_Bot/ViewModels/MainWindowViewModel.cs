@@ -64,14 +64,14 @@ namespace Medical_Info_Collector_Telegramm_Bot.ViewModels
 
             m_colBot.Start();
                          
-        }
+        } 
 
         private void M_colBot_OnUpdateRecieve(IronOcr.OcrResult obj)
         {
             bool CodeCorrect = false;
 
             bool SNLFound = false;
-
+            
             string[] snl = null;
 
             string code = String.Empty;
@@ -82,14 +82,20 @@ namespace Medical_Info_Collector_Telegramm_Bot.ViewModels
                
                 foreach (var item in Lines)
                 {
-                    CodeCorrect = m_code.IsMatch(item.Text);
-
-                    if (CodeCorrect)// El refferal was found
+                    if (!CodeCorrect)
                     {
-                        code = item.Text;
+                        CodeCorrect = m_code.IsMatch(item.Text);
+
+                        if (CodeCorrect)// El refferal was found
+                        {                            
+                            code = item.Text;
+                        }
                     }
 
-                    SNLFound = IsValidSNL(item.Text, out snl);                    
+                    if (!SNLFound)
+                    {
+                        SNLFound = IsValidSNL(item.Text, out snl);
+                    }                                       
                 }
             }
 
