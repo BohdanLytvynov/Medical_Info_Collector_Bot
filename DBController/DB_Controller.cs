@@ -81,6 +81,8 @@ namespace DBController
         {
             IEnumerable<Patient> res = null;
 
+            var str = key.ToString();
+
             try
             {
                 switch (mode)
@@ -88,7 +90,7 @@ namespace DBController
                     case SearchMode.По_Прізвищу:
 
                         res = (from p in m_db.PatientNotes
-                               where p.Surename.Equals(key.ToString())
+                               where EF.Functions.Like(p.Surename, $"%{str}%")
                                select p).Include(x => x.AdditionalPatientInfo).OrderBy(x => x.Surename);
 
                         break;

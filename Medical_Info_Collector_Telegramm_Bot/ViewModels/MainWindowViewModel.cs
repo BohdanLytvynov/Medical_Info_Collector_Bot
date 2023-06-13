@@ -189,6 +189,8 @@ namespace Medical_Info_Collector_Telegramm_Bot.ViewModels
         {
             #region InitFields
 
+            m_patients = new ObservableCollection<PatientVM>();
+
             m_start = DateTime.Now;
 
             m_end = DateTime.Now;
@@ -223,7 +225,7 @@ namespace Medical_Info_Collector_Telegramm_Bot.ViewModels
 
             var str = m_colBot.TestBotAsync();
 
-            MessageBox.Show($"{str}");
+            MessageBox.Show($"{str}", "MedInfoCollectorBot", MessageBoxButton.OK, MessageBoxImage.Information);
 
             #endregion
 
@@ -295,6 +297,12 @@ namespace Medical_Info_Collector_Telegramm_Bot.ViewModels
                 m_dbController.Add(
                     p
                     );
+
+                Patients.Add(new PatientVM(Guid.NewGuid(), snl[0], snl[1],
+                    snl[2], code, String.Empty,
+                    PatientStatus.Не_Погашено,
+                    new DateTime(), DateTime.Now,
+                    String.Empty, null));
             }
         }
         #endregion
@@ -328,7 +336,7 @@ namespace Medical_Info_Collector_Telegramm_Bot.ViewModels
 
         public void StopBot()
         {
-            MessageBox.Show($"Зупиняю роботу!");
+            MessageBox.Show($"Зупиняю роботу!", "MedInfoCollectorBot", MessageBoxButton.OK, MessageBoxImage.Information);
 
             m_colBot.Stop();
         }
@@ -389,11 +397,13 @@ namespace Medical_Info_Collector_Telegramm_Bot.ViewModels
 
                     m_window.Dispatcher.Invoke(() =>
                     {
-                        m_patients.Add(new PatientVM(item.Id, item.Surename, item.Name,
+                        Patients.Add(new PatientVM(item.Id, item.Surename, item.Name,
                         item.Lastname, item.Code, item.Diagnosis, item.Status, item.RegisterDate,
                         item.InvestigationDate, item.Center, addInfo));
                     });                    
                 }
+
+                Count = Patients.Count;
 
             });
         }
