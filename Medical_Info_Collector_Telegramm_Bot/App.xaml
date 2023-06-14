@@ -7,8 +7,15 @@
              xmlns:patient="clr-namespace:ItemViewModels.Patient;assembly=ItemViewModels"
              xmlns:ad="clr-namespace:ItemViewModels.AddInfoViewModel;assembly=ItemViewModels"
              xmlns:searchMode="clr-namespace:DBController.Enums;assembly=DBController"
+             xmlns:converters="clr-namespace:ConvertersLib;assembly=ConvertersLib"
              StartupUri="Views/MainWindow.xaml">
     <Application.Resources>
+
+        <!--#region Converters -->
+
+        <converters:StringToDateTimeConverter x:Key="StringToDateTime"/>
+
+        <!--#endregion-->
 
         <!--#region Enums  -->
 

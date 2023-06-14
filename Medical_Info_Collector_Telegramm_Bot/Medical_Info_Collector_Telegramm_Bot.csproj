@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Collector_Bot_Api\Collector_Bot_Api.csproj" />
+    <ProjectReference Include="..\ConvertersLib\ConvertersLib.csproj" />
     <ProjectReference Include="..\DBController\DBController.csproj" />
     <ProjectReference Include="..\ItemViewModels\ItemViewModels.csproj" />
   </ItemGroup>

@@ -20,6 +20,9 @@ using System.Windows.Input;
 using PatientRep.ViewModelBase.Commands;
 using DBController.Enums;
 using ItemViewModels;
+using SixLabors.Fonts;
+using static IronOcr.OcrResult;
+using System.Diagnostics;
 
 namespace Medical_Info_Collector_Telegramm_Bot.ViewModels
 {
@@ -248,17 +251,23 @@ namespace Medical_Info_Collector_Telegramm_Bot.ViewModels
             m_colBot.Start();
                          
         }
-
+        #endregion
 
         #region Methods
 
         private void M_colBot_OnUpdateRecieve(IronOcr.OcrResult obj)
         {
+            Debug.WriteLine("In Method!!");
+
             bool CodeCorrect = false;
 
-            bool SNLFound = false;
+            bool SNFound = false;
+
+            bool LastNameFound = false;
 
             string[] snl = null;
+
+            string[] l = null;
 
             string code = String.Empty;
 
@@ -270,25 +279,40 @@ namespace Medical_Info_Collector_Telegramm_Bot.ViewModels
                 {
                     if (!CodeCorrect)
                     {
-                        CodeCorrect = m_code.IsMatch(item.Text);
-
-                        if (CodeCorrect)// El refferal was found
+                        foreach (var word in item.Words)
                         {
-                            code = item.Text;
-                        }
+                            CodeCorrect = m_code.IsMatch(word.Text);
+
+                            if (CodeCorrect)// El refferal was found
+                            {
+                                code = word.Text;
+
+                                break;
+                            }
+                        }                        
                     }
 
-                    if (!SNLFound)
+                    if (!SNFound)
                     {
-                        SNLFound = IsValidSNL(item.Text, out snl);
+                        SNFound = AreWordsValid(item.Words, out snl, 2);
+                    }
+
+                    if (!LastNameFound)
+                    {
+                        LastNameFound = AreWordsValid(item.Words, out l, 1);
+                    }
+
+                    if (CodeCorrect && SNFound && LastNameFound)
+                    {
+                        break;
                     }
                 }
             }
 
-            if (CodeCorrect && SNLFound)
+            if (CodeCorrect && SNFound && LastNameFound)
             {
                 var p = new Patient(Guid.NewGuid(), snl[1], snl[0],
-                    snl[2], code, String.Empty,
+                    l[0], code, String.Empty,
                     PatientStatus.Не_Погашено,
                     new DateTime(), DateTime.Now,
                     String.Empty, null
@@ -298,35 +322,60 @@ namespace Medical_Info_Collector_Telegramm_Bot.ViewModels
                     p
                     );
 
-                Patients.Add(new PatientVM(Guid.NewGuid(), snl[0], snl[1],
-                    snl[2], code, String.Empty,
+                m_window.Dispatcher.Invoke(() =>
+                {
+                    Patients.Add(new PatientVM(Guid.NewGuid(), snl[0], snl[1],
+                    l[0], code, String.Empty,
                     PatientStatus.Не_Погашено,
                     new DateTime(), DateTime.Now,
                     String.Empty, null));
+                });
             }
         }
         #endregion
 
-        private bool IsValidSNL(string txt, out string[] snl)
+        private bool AreWordsValid(Word[] words, out string[] snl, int Count)
         {
-            snl = new string[3];
+            snl = null;
 
-            if (txt != null)
-            {
-                var splitArray = txt.Split(' ');
+            if (words != null)
+            {                
+                int l = words.Length;
 
-                for (int i = 0; i < 3; i++)
+                if (!(l == Count))
                 {
-                    string first = splitArray[i][0].ToString();
+                    return false;
+                }
 
-                    if (!first.Equals(first.ToUpper()))
+                snl = new string[words.Length];
+
+                for (int i = 0; i < l; i++)
+                {
+                    var Word = words[i];
+
+                    if (!Char.IsLetter(Word.Text[0]))
                     {
                         return false;
                     }
-                    else
+
+                    if (!Char.IsUpper(Word.Text[0])) //first letter of each word is in Upper Case
                     {
-                        snl[i] = splitArray[i];
+                        return false;
                     }
+                    else 
+                    {
+                        int charCount = Word.Text.Length;
+
+                        for (int j = 1; j < charCount; j++)
+                        {
+                            if (Char.IsLetter(Word.Text[j]) && Char.IsUpper(Word.Text[j]))
+                            {
+                                return false;
+                            }
+                        }
+                    }
+
+                    snl[i] = Word.Text;
                 }
             }
 
@@ -359,11 +408,11 @@ namespace Medical_Info_Collector_Telegramm_Bot.ViewModels
                 switch (SearchModeProp)
                 {
                     case SearchMode.По_Прізвищу:
-                        
+
                     case SearchMode.По_Імені:
-                       
+
                     case SearchMode.По_батькові:
-                      
+
                     case SearchMode.По_Номеру_Направлення:
 
                         res = m_dbController.GetItems(SearchKey, SearchModeProp);
@@ -376,10 +425,10 @@ namespace Medical_Info_Collector_Telegramm_Bot.ViewModels
                         res = m_dbController.GetItems(temp, SearchModeProp);
 
                         break;
-                    
+
                 }
 
-                return res;                
+                return res;
             });
 
             t.ContinueWith((t) => {
@@ -400,7 +449,7 @@ namespace Medical_Info_Collector_Telegramm_Bot.ViewModels
                         Patients.Add(new PatientVM(item.Id, item.Surename, item.Name,
                         item.Lastname, item.Code, item.Diagnosis, item.Status, item.RegisterDate,
                         item.InvestigationDate, item.Center, addInfo));
-                    });                    
+                    });
                 }
 
                 Count = Patients.Count;
@@ -418,8 +467,6 @@ namespace Medical_Info_Collector_Telegramm_Bot.ViewModels
         {
             SearchKey = String.Empty;
         }
-        #endregion
-
         #endregion
     }
 }

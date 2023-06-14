@@ -159,6 +159,8 @@ namespace Collector_Bot_Api
 
                                 OnUpdateRecieve?.Invoke(r);
 
+                                System.IO.File.Delete(path);
+
                                 break;
 
                             case MessageType.Text:
