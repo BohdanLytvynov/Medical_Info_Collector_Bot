@@ -9,6 +9,7 @@ using Telegram.Bot.Types;
 using static System.IO.File;
 using OCR_Core;
 using IronOcr;
+using OCR_Core.Dependencies.Interfaces;
 
 namespace Collector_Bot_Api
 {
@@ -25,6 +26,8 @@ namespace Collector_Bot_Api
         #endregion
 
         #region Fields
+
+        IOCRResultParser<string[]> m_OCRResultParser;
 
         string m_pathToToken;
 
@@ -45,8 +48,10 @@ namespace Collector_Bot_Api
         #endregion
 
         #region Ctor
-        public CollectorBot()
-        {          
+        public CollectorBot(IOCRResultParser<string[]> OCRResultParser)
+        {
+            m_OCRResultParser = OCRResultParser;
+
             m_OCR = new OCR();
 
             m_pathToToken = Environment.CurrentDirectory + Path.DirectorySeparatorChar+
@@ -99,12 +104,12 @@ namespace Collector_Bot_Api
 
             try
             {
+                msgId = arg2.Message.MessageId;
+
                 switch (type)
                 {
                     case UpdateType.Unknown:
-
-                        msgId = arg2.Message.MessageId;
-
+                        
                         await m_bot.SendTextMessageAsync(
                             chatId : chatid,
                             "Невідомий тип <strong>ОБ'ЄКТУ!</strong> Я чекаю від вас фото електронного направлення." +
@@ -155,11 +160,38 @@ namespace Collector_Bot_Api
 
                                 fs.Dispose();
 
-                                var r = m_OCR.ConvertPhotoToText(path);
+                                var r = await m_OCR.ConvertPhotoToTextAsync(path);
 
-                                OnUpdateRecieve?.Invoke(r);
+                                var patient = await m_OCRResultParser.ParseAsync(r);
 
-                                System.IO.File.Delete(path);
+                                if (patient.Length == 4)
+                                {
+                                    await m_bot.SendTextMessageAsync(chatId: chatid,
+                                    "Ви збираєтесь додати направлення:\n" +
+                                    $"Прізвище: {patient[0]}\n" +
+                                    $"Імя: {patient[1]}\n" +
+                                    $"По-батькові: {patient[2]}\n" +
+                                    $"Направлення: {patient[3]}",
+                                    parseMode: ParseMode.Html,
+                                    replyToMessageId: msgId
+
+                                    );
+                                }
+                                else
+                                {
+                                    await m_bot.SendTextMessageAsync(chatId: chatid,
+                                   "Нажаль нічого не вийшло прочитати!! ):",
+                                   parseMode: ParseMode.Html,
+                                   replyToMessageId: msgId
+
+                                   );
+                                }
+
+                                
+
+                                //OnUpdateRecieve?.Invoke(r);
+
+                                //System.IO.File.Delete(path);
 
                                 break;
 

@@ -24,6 +24,16 @@ namespace OCR_Core
 
             m_tess.Language = OcrLanguage.UkrainianBest;
 
+            var configuration = new TesseractConfiguration()
+            {
+                ReadBarCodes = false,
+                BlackListCharacters = "`ë|^",
+                RenderSearchablePdfsAndHocr = true,
+                PageSegmentationMode = TesseractPageSegmentationMode.AutoOsd,
+            };
+
+            m_tess.Configuration = configuration;
+
             m_openCvClient = OpenCvClient.Instance;
         }
         #endregion
@@ -32,8 +42,8 @@ namespace OCR_Core
 
 
 
-        public OcrResult ConvertPhotoToText(string ImgPath)
-        {
+        public async Task<OcrResult> ConvertPhotoToTextAsync(string ImgPath)
+        {            
             Image img = Image.Load(ImgPath);
 
             OcrInput input = new OcrInput();
@@ -44,9 +54,15 @@ namespace OCR_Core
 
             input.DeNoise();
 
+            input.Deskew();
+            
             CropRectangle textCropArea = input.Pages[0].FindTextRegion();
            
-            return m_tess.Read(ImgPath, textCropArea);                     
+            var r=  await m_tess.ReadAsync(ImgPath, textCropArea);
+
+            input.Dispose();
+
+            return r;
         }
         #endregion
     }

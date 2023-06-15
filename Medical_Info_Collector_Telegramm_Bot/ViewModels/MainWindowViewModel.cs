@@ -23,6 +23,7 @@ using ItemViewModels;
 using SixLabors.Fonts;
 using static IronOcr.OcrResult;
 using System.Diagnostics;
+using OCR_Core;
 
 namespace Medical_Info_Collector_Telegramm_Bot.ViewModels
 {
@@ -222,7 +223,7 @@ namespace Medical_Info_Collector_Telegramm_Bot.ViewModels
 
             m_window = window;
 
-            m_colBot = new CollectorBot();
+            m_colBot = new CollectorBot(new OCRResultParser(m_code));
 
             m_colBot.OnUpdateRecieve += M_colBot_OnUpdateRecieve;
 
@@ -257,130 +258,84 @@ namespace Medical_Info_Collector_Telegramm_Bot.ViewModels
 
         private void M_colBot_OnUpdateRecieve(IronOcr.OcrResult obj)
         {
-            Debug.WriteLine("In Method!!");
+            //Debug.WriteLine("In Method!!");
 
-            bool CodeCorrect = false;
+            //bool CodeCorrect = false;
 
-            bool SNFound = false;
+            //bool SNFound = false;
 
-            bool LastNameFound = false;
+            //bool LastNameFound = false;
 
-            string[] snl = null;
+            //string[] snl = null;
 
-            string[] l = null;
+            //string[] l = null;
 
-            string code = String.Empty;
+            //string code = String.Empty;
 
-            if (obj != null && obj.Lines.Length > 0)
-            {
-                var Lines = obj.Lines;
+            //if (obj != null && obj.Lines.Length > 0)
+            //{
+            //    var Lines = obj.Lines;
 
-                foreach (var item in Lines)
-                {
-                    if (!CodeCorrect)
-                    {
-                        foreach (var word in item.Words)
-                        {
-                            CodeCorrect = m_code.IsMatch(word.Text);
+            //    foreach (var item in Lines)
+            //    {
+            //        if (!CodeCorrect)
+            //        {
+            //            foreach (var word in item.Words)
+            //            {
+            //                CodeCorrect = m_code.IsMatch(word.Text);
 
-                            if (CodeCorrect)// El refferal was found
-                            {
-                                code = word.Text;
+            //                if (CodeCorrect)// El refferal was found
+            //                {
+            //                    code = word.Text;
 
-                                break;
-                            }
-                        }                        
-                    }
+            //                    break;
+            //                }
+            //            }                        
+            //        }
 
-                    if (!SNFound)
-                    {
-                        SNFound = AreWordsValid(item.Words, out snl, 2);
-                    }
+            //        if (!SNFound)
+            //        {
+            //            SNFound = AreWordsValid(item.Words, out snl, 2);
+            //        }
 
-                    if (!LastNameFound)
-                    {
-                        LastNameFound = AreWordsValid(item.Words, out l, 1);
-                    }
+            //        if (!LastNameFound)
+            //        {
+            //            LastNameFound = AreWordsValid(item.Words, out l, 1);
+            //        }
 
-                    if (CodeCorrect && SNFound && LastNameFound)
-                    {
-                        break;
-                    }
-                }
-            }
+            //        if (CodeCorrect && SNFound && LastNameFound)
+            //        {
+            //            break;
+            //        }
+            //    }
+            //}
+           
+            //if (CodeCorrect && SNFound && LastNameFound)
+            //{
+            //    var p = new Patient(Guid.NewGuid(), snl[1], snl[0],
+            //        l[0], code, String.Empty,
+            //        PatientStatus.Не_Погашено,
+            //        new DateTime(), DateTime.Now,
+            //        String.Empty, null
+            //       );
 
-            if (CodeCorrect && SNFound && LastNameFound)
-            {
-                var p = new Patient(Guid.NewGuid(), snl[1], snl[0],
-                    l[0], code, String.Empty,
-                    PatientStatus.Не_Погашено,
-                    new DateTime(), DateTime.Now,
-                    String.Empty, null
-                   );
+            //    m_dbController.Add(
+            //        p
+            //        );
 
-                m_dbController.Add(
-                    p
-                    );
-
-                m_window.Dispatcher.Invoke(() =>
-                {
-                    Patients.Add(new PatientVM(Guid.NewGuid(), snl[0], snl[1],
-                    l[0], code, String.Empty,
-                    PatientStatus.Не_Погашено,
-                    new DateTime(), DateTime.Now,
-                    String.Empty, null));
-                });
-            }
+            //    m_window.Dispatcher.Invoke(() =>
+            //    {
+            //        Patients.Add(new PatientVM(Guid.NewGuid(), snl[0], snl[1],
+            //        l[0], code, String.Empty,
+            //        PatientStatus.Не_Погашено,
+            //        new DateTime(), DateTime.Now,
+            //        String.Empty, null));
+            //    });
+            //}
         }
         #endregion
 
-        private bool AreWordsValid(Word[] words, out string[] snl, int Count)
-        {
-            snl = null;
-
-            if (words != null)
-            {                
-                int l = words.Length;
-
-                if (!(l == Count))
-                {
-                    return false;
-                }
-
-                snl = new string[words.Length];
-
-                for (int i = 0; i < l; i++)
-                {
-                    var Word = words[i];
-
-                    if (!Char.IsLetter(Word.Text[0]))
-                    {
-                        return false;
-                    }
-
-                    if (!Char.IsUpper(Word.Text[0])) //first letter of each word is in Upper Case
-                    {
-                        return false;
-                    }
-                    else 
-                    {
-                        int charCount = Word.Text.Length;
-
-                        for (int j = 1; j < charCount; j++)
-                        {
-                            if (Char.IsLetter(Word.Text[j]) && Char.IsUpper(Word.Text[j]))
-                            {
-                                return false;
-                            }
-                        }
-                    }
-
-                    snl[i] = Word.Text;
-                }
-            }
-
-            return true;
-        }
+        
 
 
         public void StopBot()
