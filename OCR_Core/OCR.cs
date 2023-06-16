@@ -1,7 +1,7 @@
 ﻿using IronOcr;
 using IronSoftware.Drawing;
 using SixLabors.ImageSharp;
-
+using System.Diagnostics;
 
 namespace OCR_Core
 {
@@ -9,6 +9,8 @@ namespace OCR_Core
     {
         #region Fields
         IronTesseract m_tess;
+
+        Random m_random;
 
         OpenCvClient m_openCvClient;
         #endregion
@@ -20,6 +22,8 @@ namespace OCR_Core
         #region Ctor
         public OCR()
         {
+            m_random = new Random();
+
             m_tess = new IronTesseract();
 
             m_tess.Language = OcrLanguage.UkrainianBest;
@@ -43,26 +47,19 @@ namespace OCR_Core
 
 
         public async Task<OcrResult> ConvertPhotoToTextAsync(string ImgPath)
-        {            
+        {                       
             Image img = Image.Load(ImgPath);
+                          
+            var regions = m_openCvClient.FindTextRegions(img, 1, 1, false, false);
 
-            OcrInput input = new OcrInput();
+            foreach (var region in regions)
+            {                
+                var r = await m_tess.ReadAsync(img, region);
 
-            input.AddImage(img);
-
-            input.Binarize();
-
-            input.DeNoise();
-
-            input.Deskew();
-            
-            CropRectangle textCropArea = input.Pages[0].FindTextRegion();
-           
-            var r=  await m_tess.ReadAsync(ImgPath, textCropArea);
-
-            input.Dispose();
-
-            return r;
+                Debug.WriteLine(r.Text);
+            }
+                       
+            return null;
         }
         #endregion
     }
