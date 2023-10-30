@@ -9,6 +9,6 @@ namespace OCR_Core.Dependencies.Interfaces
 {
     public interface IOCRResultParser<Tout>
     {
-        Task<Tout> ParseAsync(OcrResult res);
+        Task<Tout> ParseAsync(IEnumerable<OcrResult> res);
     }
 }

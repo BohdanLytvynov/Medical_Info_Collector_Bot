@@ -162,7 +162,7 @@ namespace Collector_Bot_Api
 
                                 var r = await m_OCR.ConvertPhotoToTextAsync(path);
 
-                                var patient = await m_OCRResultParser.ParseAsync(r);
+                                string[] patient = await m_OCRResultParser.ParseAsync(r);
 
                                 if (patient.Length == 4)
                                 {

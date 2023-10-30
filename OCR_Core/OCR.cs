@@ -46,20 +46,24 @@ namespace OCR_Core
 
 
 
-        public async Task<OcrResult> ConvertPhotoToTextAsync(string ImgPath)
+        public async Task<List<OcrResult>> ConvertPhotoToTextAsync(string ImgPath)
         {                       
             Image img = Image.Load(ImgPath);
                           
             var regions = m_openCvClient.FindTextRegions(img, 1, 1, false, false);
 
+            List<OcrResult> result = new List<OcrResult>(); 
+
             foreach (var region in regions)
             {                
                 var r = await m_tess.ReadAsync(img, region);
 
+                result.Add(r);
+
                 Debug.WriteLine(r.Text);
             }
                        
-            return null;
+            return result;
         }
         #endregion
     }

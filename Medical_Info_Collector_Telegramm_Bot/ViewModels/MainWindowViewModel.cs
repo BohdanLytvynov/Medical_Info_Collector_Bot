@@ -40,6 +40,12 @@ namespace Medical_Info_Collector_Telegramm_Bot.ViewModels
 
         Regex m_code;
 
+        readonly Regex m_Name_or_Surename_or_Lastname;
+
+        readonly Regex m_Surename_Name;
+
+        readonly Regex m_Surename_Name_Lastname;
+
         ObservableCollection<PatientVM> m_patients;
 
         string m_SearchKey;
@@ -211,6 +217,13 @@ namespace Medical_Info_Collector_Telegramm_Bot.ViewModels
 
             m_code = new Regex(@"\d{4}-\d{4}-\d{4}-\d{4}");
 
+            m_Name_or_Surename_or_Lastname = new Regex(@"^[А-ЯІЇЄҐ]{1}[а-яіїєґ]{0,}");
+
+            m_Surename_Name = new Regex(@"^[А-ЯІЇЄҐ]{1}[а-яіїєґ]{0,}\s{1,}[А-ЯІЇЄҐ]{1}[а-яіїєґ]{0,}\s{0,}");
+
+            m_Surename_Name_Lastname = 
+                new Regex(@"^[А-ЯІЇЄҐ]{1}[а-яіїєґ]{0,}\s{1,}[А-ЯІЇЄҐ]{1}[а-яіїєґ]{0,}\s{0,}\s{1,}[А-ЯІЇЄҐ]{1}[а-яіїєґ]{0,}\s{0,}");
+
             var settings = ConfigurationManager.GetSection("appSettings") as NameValueCollection;
 
             DbContextOptionsBuilder<MedInfoDbContext> optBuilder = new DbContextOptionsBuilder<MedInfoDbContext>();
@@ -223,7 +236,8 @@ namespace Medical_Info_Collector_Telegramm_Bot.ViewModels
 
             m_window = window;
 
-            m_colBot = new CollectorBot(new OCRResultParser(m_code));
+            m_colBot = new CollectorBot(new OCRResultParser(m_code, 
+                m_Name_or_Surename_or_Lastname, m_Surename_Name, m_Surename_Name_Lastname));
 
             m_colBot.OnUpdateRecieve += M_colBot_OnUpdateRecieve;
 
